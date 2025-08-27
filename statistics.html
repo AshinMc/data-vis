@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistics - Happiness vs Internet</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <header>
+    <a href="index.html">◀ Back</a>
+    <h1>Statistical Analysis</h1>
+  </header>
+
+  <div id="content">
+    <section id="data-status">
+      <h2>1. Data Loading</h2>
+      <p class="note">We load two CSV files and then join them by country name.</p>
+      <div id="loadMsg" class="box">Loading CSVs...</div>
+    </section>
+
+    <section id="correlationSection">
+      <h2>2. Correlation (Pearson)</h2>
+      <p class="note">Shows straight-line relationship strength between Internet % and Happiness (-1 to +1).</p>
+      <div class="stats" id="corrStats"></div>
+    </section>
+
+    <section id="regressionSection">
+      <h2>3. Linear Regression</h2>
+      <p class="note">Dots = countries. Red line = best fit. R² shows how much variation is explained.</p>
+      <div id="scatter"></div>
+      <div class="stats" id="regressionStats"></div>
+    </section>
+
+    <section id="clusteringSection">
+      <h2>4. Simple Spatial Clustering (k=3)</h2>
+      <p class="note">Groups only by geographic position (lat / lon). Color = cluster id.</p>
+      <div id="clusterMap"></div>
+      <div id="clusterSummary" class="note"></div>
+    </section>
+
+    <section id="gwrSection">
+      <h2>5. Local (Weighted) Slope</h2>
+      <p class="note">Looks at nearby countries (~2500 km) to get a local slope (change in happiness per +1% internet).</p>
+      <div id="gwrMap"></div>
+      <div id="gwrLegend" class="note"></div>
+    </section>
+
+    <section id="anomaliesSection">
+      <h2>6. Largest Residuals</h2>
+      <p class="note">Countries far above or below the global line (biggest differences).</p>
+      <ul id="topResiduals" class="note"></ul>
+    </section>
+
+    <section id="interpretSection">
+      <h2>7. Interpretation & Caution</h2>
+      <div id="autoInterpret" class="note" style="margin-bottom:10px;"></div>
+      <div id="patternSummary" class="note" style="margin-bottom:10px;"></div>
+      <p class="note"><b>Spurious correlation:</b> Correlation does NOT prove cause. Other variables may drive both.</p>
+    </section>
+  </div>
+
+</body>
+<style>
+  :root, body, html {
+    margin:0;
+    padding:0;
+  }
+
+  body{
+    font-family: Arial, sans-serif;
+    background:#fafafa;
+    color:#222;
+  }
+
+  header{
+    background:#34495e;
+    color:#fff;
+    padding:14px 20px;
+    display:flex;
+    gap:14px;
+    align-items:center;
+  }
+
+  header a{
+    background:#2ecc71;
+    color:#fff;
+    text-decoration:none;
+    padding:8px 12px;
+    border-radius:4px;
+    font-size:14px;
+  }
+
+  #content{
+    max-width:1150px;
+    margin:0 auto;
+    padding:30px 24px 70px;
+  }
+
+  section{
+    background:#fff;
+    border:1px solid #ccc;
+    border-radius:8px;
+    padding:24px 24px 28px;
+    margin:0 0 34px;
+  }
+
+  section h2{
+    margin:0 0 12px;
+    font-size:20px;
+  }
+
+  p{
+    line-height:1.55;
+    margin:4px 0 12px;
+  }
+
+  .note{
+    font-size:14px;
+  }
+
+  .box{
+    background:#f9f9d9;
+    padding:10px 12px;
+    border:1px solid #e5e1b5;
+    border-radius:6px;
+    font-size:14px;
+  }
+  
+  .stats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-top:8px;
+  }
+
+  .stats .stat{
+    background:#eef2f4;
+    padding:10px 14px;
+    border-radius:6px;
+    font-size:14px;
+  }
+
+  #scatter{
+    width:100%;
+    height:440px;
+    background:#f3f6f8;
+    border:1px solid #ccc;
+    border-radius:6px;
+  }
+
+  #clusterMap, #gwrMap{
+    width:100%;
+    height:420px;
+    border:1px solid #ccc;
+    border-radius:6px;
+  }
+
+  table{
+    border-collapse:collapse;
+    width:100%;
+    margin-top:12px;
+    font-size:14px;
+  }
+
+  th, td{
+    border:1px solid #bbb;
+    padding:6px 8px;
+    text-align:left;
+  }
+
+  th{
+    background:#eef2f4;
+  }
+
+  ul{
+    padding-left:20px;
+    margin:8px 0 0;
+  }
+</style>
+</html>
+
+<script src="statistics.js"></script>

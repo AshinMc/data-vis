@@ -4,7 +4,8 @@ var happinessData = {};
 var countriesLayer;
 var markerCluster = L.markerClusterGroup();
 
-function getHappinessColor(score) {
+function getHappinessColor(score) 
+{
     if (!score) return '#2c3e50';
     if (score >= 7.0) return '#27ae60';
     if (score >= 6.5) return '#2ecc71';
@@ -14,7 +15,8 @@ function getHappinessColor(score) {
     return '#c0392b';
 }
 
-function getMarkerSize(pct) {
+function getMarkerSize(pct) 
+{
     if (!pct) return 4;
     if (pct >= 90) return 12;
     if (pct >= 70) return 10;
@@ -23,7 +25,8 @@ function getMarkerSize(pct) {
     return 4;
 }
 
-function getMarkerColor(pct) {
+function getMarkerColor(pct) 
+{
     if (!pct) return '#95a5a6';
     if (pct >= 90) return '#8e44ad';
     if (pct >= 70) return '#3498db';
@@ -37,14 +40,17 @@ var geojsonData = null;
 // Process internet data and create markers
 function processInternetData(data) {
     data.forEach(function(row) {
-        if (row["Country"] && row["PctOfPopulationUsingInternet"]) {
+        if (row["Country"] && row["PctOfPopulationUsingInternet"])
+        {
             var country = row["Country"];
             var internetPct = parseFloat(row["PctOfPopulationUsingInternet"]);
             internetData[country] = internetPct;
 
-            if (row["Latitude"] && row["Longitude"]) {
+            if (row["Latitude"] && row["Longitude"]) 
+            {
                 var lat = parseFloat(row["Latitude"]);
                 var lon = parseFloat(row["Longitude"]);
+                
                 L.circleMarker([lat, lon], {
                     radius: getMarkerSize(internetPct),
                     color: '#ffffff',
