@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happiness Index vs Internet Users</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    
+</head>
+<body>
+    <div id="map"></div>
+
+</body>
+<style>
+    :root, body, html {
+        margin: 0;
+        padding: 0;
+    }
+    #map { 
+        height: 100vh;
+        width:100vw;
+     } 
+        /* Legend styling */
+    .legend {
+        background: white;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 12px;
+        font-family: Arial, sans-serif;
+        line-height: 18px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    .legend strong {
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    /* Color legend squares */
+    .legend span {
+        width: 15px;
+        height: 15px;
+        display: inline-block;
+        margin-right: 8px;
+        border: 1px solid #333;
+    }
+
+    /* Circle markers for internet legend */
+    .legend .internet-legend span {
+        border-radius: 50%;
+        vertical-align: middle;
+    }
+</style>
+</html>
+
+<script src="index.js"></script>
