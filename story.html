@@ -1,65 +1,148 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>Story</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<style>
-/* Simple visual novel style with plain boxes and optional stick figure images */
-body { margin:0; font-family: 'Press Start 2P', Arial, sans-serif; background:#000; }
-#map { position:fixed; inset:0; }
+    <head>
+        <meta charset="utf-8" />
+        <title>Story</title>
 
-/* Character stage (right side) */
-/* Character image floats above box */
-#charImg { position:fixed; right:8%; bottom:200px; width:360px; max-height:560px; object-fit:contain; image-rendering:crisp-edges; image-rendering:pixelated; pointer-events:none; filter:drop-shadow(0 8px 14px rgba(0,0,0,0.6)); z-index:40; }
-/* One-shot vertical shake when advancing */
-.stick-shake { animation: stickShake 0.45s ease; }
-@keyframes stickShake { 0% { transform:translateY(0); } 18% { transform:translateY(-14px); } 36% { transform:translateY(0); } 54% { transform:translateY(-9px); } 72% { transform:translateY(0); } 100% { transform:translateY(0); } }
+        <!-- Leaflet map CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <!-- Retro font -->
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
-/* Dialogue box */
-#dialogueBox {
-    position:fixed;
-    left:50%; bottom:18px; transform:translateX(-50%);
-    width:78%; max-width:1000px;
-    background:rgba(0,0,0,0.72);
-    border:1px solid #444; border-radius:10px;
-    padding:18px 22px 20px 22px;
-    color:#f4f4f4; font-size:17px; line-height:1.5; letter-spacing:0.5px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.4);
-    backdrop-filter:blur(3px);
-}
-#dialogueInner { position:relative; background:transparent; padding:0; border:none; }
-#dialogueName { position:static; display:inline-block; margin:0 0 10px 0; background:#222; border:1px solid #555; padding:4px 10px 5px 10px; font-weight:bold; border-radius:4px; font-size:14px; letter-spacing:.5px; }
-#dialogueContent { position:relative; min-height:110px; }
-#dialogueText { min-height:60px; }
-#dialogueButtons { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
-#dialogueButtons button, #dialogueButtons a { background:#2b6cb0; color:#fff; border:none; padding:8px 18px; border-radius:4px; font-size:13px; cursor:pointer; text-decoration:none; box-shadow:0 2px 4px rgba(0,0,0,0.35); }
-#dialogueButtons button:hover, #dialogueButtons a:hover { background:#3782d6; }
-#dialogueButtons button:disabled { opacity:0.45; cursor:default; }
-@media (max-width:800px) { #dialogueBox { width:94%; } #charImg { width:240px; max-height:360px; right:4%; bottom:240px; } }
-</style>
-</head>
-<body>
-<div id="map"></div>
-<img id="charImg" alt="" style="display:none;">
-<div id="dialogueBox">
-    <div id="dialogueInner">
-            <div id="dialogueName">Narrator</div>
-            <div id="dialogueContent">
-                <div id="dialogueText">Loading...</div>
-            </div>
-        <div id="dialogueButtons">
-            <button id="prevBtn">Prev</button>
-            <button id="nextBtn">Next</button>
-            <a href="index.html">Map</a>
+        <style>
+            /* Basic page look */
+            body {
+                margin: 0;
+                font-family: 'Press Start 2P', Arial, sans-serif;
+                background: #000;
+            }
+
+            /* Map fills screen */
+            #map { position: fixed; inset: 0; }
+
+            /* Character image (stick figure) */
+            #charImg {
+                position: fixed;
+                right: 8%;
+                bottom: 200px;
+                width: 360px;
+                max-height: 560px;
+                object-fit: contain;
+                image-rendering: crisp-edges;
+                image-rendering: pixelated;
+                pointer-events: none;
+                filter: drop-shadow(0 8px 14px rgba(0,0,0,0.6));
+                z-index: 40;
+            }
+
+            /* Shake little animation when changing chapter */
+            .stick-shake { animation: stickShake 0.45s ease; }
+            @keyframes stickShake {
+                0% { transform: translateY(0); }
+                18% { transform: translateY(-14px); }
+                36% { transform: translateY(0); }
+                54% { transform: translateY(-9px); }
+                72% { transform: translateY(0); }
+                100% { transform: translateY(0); }
+            }
+
+            /* Dialogue area (bottom) */
+            #dialogueBox {
+                position: fixed;
+                left: 50%;
+                bottom: 18px;
+                transform: translateX(-50%);
+                width: 78%;
+                max-width: 1000px;
+                background: rgba(0,0,0,0.72);
+                border: 1px solid #444;
+                border-radius: 10px;
+                padding: 18px 22px 20px 22px;
+                color: #f4f4f4;
+                font-size: 17px;
+                line-height: 1.5;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                backdrop-filter: blur(3px);
+            }
+
+            #dialogueInner { position: relative; }
+
+            #dialogueName {
+                display: inline-block;
+                margin: 0 0 10px 0;
+                background: #222;
+                border: 1px solid #555;
+                padding: 4px 10px 5px 10px;
+                font-weight: bold;
+                border-radius: 4px;
+                font-size: 14px;
+                letter-spacing: .5px;
+            }
+
+            #dialogueContent { min-height: 110px; }
+            #dialogueText { min-height: 60px; }
+
+            #dialogueButtons {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+                margin-top: 12px;
+            }
+            #dialogueButtons button, #dialogueButtons a {
+                background: #2b6cb0;
+                color: #fff;
+                border: none;
+                padding: 8px 18px;
+                border-radius: 4px;
+                font-size: 13px;
+                cursor: pointer;
+                text-decoration: none;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+            }
+            #dialogueButtons button:hover, #dialogueButtons a:hover { background: #3782d6; }
+            #dialogueButtons button:disabled { opacity: 0.45; cursor: default; }
+
+            @media (max-width: 800px) {
+                #dialogueBox { width: 94%; }
+                #charImg { width: 240px; max-height: 360px; right: 4%; bottom: 240px; }
+            }
+        </style>
+    </head>
+    <body>
+
+        <!-- Map container -->
+        <div id="map"></div>
+
+        <!-- Character image (changes per chapter) -->
+        <img id="charImg" alt="" style="display:none;" />
+
+        <!-- Hidden music container (YouTube will fill this) -->
+        <div id="bgMusicWrapper" style="position:fixed; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden;">
+            <div id="bgMusic"></div>
         </div>
-    </div>
-</div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.3/dist/simple-statistics.min.js"></script>
-<script src="story.js"></script>
-</body>
+
+        <!-- Dialogue UI -->
+        <div id="dialogueBox">
+            <div id="dialogueInner">
+                <div id="dialogueName">Narrator</div>
+                <div id="dialogueContent">
+                    <div id="dialogueText">Loading...</div>
+                </div>
+                <div id="dialogueButtons">
+                    <button id="prevBtn">Prev</button>
+                    <button id="nextBtn">Next</button>
+                    <a href="index.html">Map</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.3/dist/simple-statistics.min.js"></script>
+        <script src="https://www.youtube.com/iframe_api"></script>
+        <script src="story.js"></script>
+    </body>
 </html>
