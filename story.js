@@ -8,6 +8,7 @@ let correlationValue = 0;// Pearson correlation
 let autoplay = false;
 let autoplayTimer = null;
 let autoplayDelay = 3500; // ms per chapter
+let navShown = false;     // whether prev/next permanently shown
 
 // Typewriter state
 let typing = false;
@@ -85,7 +86,7 @@ function makeChapters() {
     correlationValue = calcCorrelation();
 
     chapters = [
-        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Welcome! A tiny journey. Press Next.', a: () => { drawCircles(); fitAll(0.05); }, fly:{center:[20,0], zoom:2} },
+        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Welcome! Click PLAY to start the tour. Then Next / Prev will appear.', a: () => { drawCircles(); fitAll(0.05); }, fly:{center:[20,0], zoom:2} },
         { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'All countries: size = internet %, color = happiness.', a: () => { drawCircles(); fitAll(0.05); }, fly:{fitAll:true} },
         { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Correlation ≈ ' + correlationValue.toFixed(2) + ' (soft positive).', a: () => drawCircles(), fly:{center:[25,10], zoom:2.5} },
         // why any link exists
@@ -283,6 +284,7 @@ function toggleAutoplay(){
     autoplay = !autoplay;
     const btn = document.getElementById('playBtn');
     if(btn) btn.textContent = autoplay ? 'Pause' : 'Play';
+    if(autoplay && !navShown){ showNavButtons(); }
     if(autoplay){
         queueNext();
     } else {
@@ -313,6 +315,12 @@ const StoryMap = {
     prev: () => goTo(currentIndex-1)
 };
 window.StoryMap = StoryMap; // exposed for console experimentation
+
+function showNavButtons(){
+    navShown = true;
+    if(prevBtn.style.display==='none') prevBtn.style.display='inline-block';
+    if(nextBtn.style.display==='none') nextBtn.style.display='inline-block';
+}
 
 // ---- Simple music handling (kept minimal) ----
 function tryMusicLater() {
