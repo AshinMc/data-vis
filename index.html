@@ -18,6 +18,7 @@
 <body>
     <div id="map"></div>
     <a href="statistics.html" class="stats-btn" title="View statistical analysis">Statistics ▶</a>
+    <a href="story.html" class="stats-btn story-btn" title="View story">Story ▶</a>
 
 </body>
 <style>
@@ -45,6 +46,10 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.25);
         opacity: .85;
         transition: opacity .2s;
+    }
+    .story-btn {
+        top: 160px; /* put story button below statistics */
+        background:#2e7dd1;
     }
     .stats-btn:hover { opacity: 1; }
         /* Legend styling */
