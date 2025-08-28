@@ -86,7 +86,7 @@ function makeChapters() {
     correlationValue = calcCorrelation();
 
     chapters = [
-        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Welcome! Click PLAY to start the tour. Then Next / Prev will appear.', a: () => { drawCircles(); fitAll(0.05); }, fly:{center:[20,0], zoom:2} },
+        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Welcome! Click Autoplay to start the tour. Then Next / Prev will appear.', a: () => { drawCircles(); fitAll(0.05); }, fly:{center:[20,0], zoom:2} },
         { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'All countries: size = internet %, color = happiness.', a: () => { drawCircles(); fitAll(0.05); }, fly:{fitAll:true} },
         { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Correlation ≈ ' + correlationValue.toFixed(2) + ' (soft positive).', a: () => drawCircles(), fly:{center:[25,10], zoom:2.5} },
         // why any link exists
