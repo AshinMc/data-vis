@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Leaflet EDA: Internet (Markers) + Happiness (Choropleth)</title>
+
+  <!-- Leaflet + MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+  <style>
+    #map { height: 420px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+  // --- 1) Basic map + tiles ---
+  var map = L.map('map').setView([55, 10], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+  // --- 2) Your data (small subset) ---
+  var happiness = {
+    "Finland":7.741, "Denmark":7.583, "Iceland":7.525, "Sweden":7.344, "Israel":7.341,
+    "Netherlands":7.319, "Norway":7.302, "Luxembourg":7.122, "Switzerland":7.06
+  };
+
+  var internetRows = [
+    {Country:"Finland", Internet:97.7, Lat:64.9681, Lon:25.7481},
+    {Country:"Denmark", Internet:92.4, Lat:56.2639, Lon:9.5018},
+    {Country:"Iceland", Internet:99.9, Lat:64.9631, Lon:-19.0208},
+    {Country:"Sweden", Internet:91.3, Lat:60.1282, Lon:18.6435},
+    {Country:"Israel", Internet:76.3, Lat:31.0461, Lon:34.8516},
+    {Country:"Netherlands", Internet:90.7, Lat:52.1326, Lon:5.2913},
+    {Country:"Norway", Internet:94.8, Lat:60.472, Lon:8.4689},
+    {Country:"Luxembourg", Internet:89.3, Lat:49.8153, Lon:6.1296},
+    {Country:"Switzerland", Internet:91.4, Lat:46.8182, Lon:8.2275}
+  ];
+
+  // --- 3) Marker cluster for Internet usage ---
+  var cluster = L.markerClusterGroup();
+  internetRows.forEach(function(d){
+    L.marker([d.Lat, d.Lon])
+      .bindPopup(d.Country + "<br>Internet: " + d.Internet + "%")
+      .addTo(cluster);
+  });
+  cluster.addTo(map);
+
+  // --- 4) Choropleth for Happiness (uses world geojson) ---
+  function getColor(s){
+    if (!s) return '#ccc';
+    if (s >= 7.5) return '#2ca25f';
+    if (s >= 7.2) return '#66c2a4';
+    if (s >= 7.0) return '#b2e2e2';
+    if (s >= 6.8) return '#edf8fb';
+    return '#eeeeee';
+  }
+
+fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
+  .then(response => response.json())
+  .then(data => {
+    let countries = L.geoJSON(data, {
+      style: feature => {
+        let name = feature.properties.name;
+        let score = happiness[name];
+        return {
+          color: '#888',
+          weight: 1,
+          fillColor: score ? getColor(score) : '#ccc',
+          fillOpacity: 0.7
+        };
+      },
+      onEachFeature: (feature, layer) => {
+        let name = feature.properties.name;
+        let score = happiness[name];
+        layer.bindPopup(`${name}<br>${score ? "Happiness: " + score : "No data"}`);
+      }
+    }).addTo(map);
+
+    L.control.layers(null, {
+      "Happiness (Choropleth)": countries,
+      "Internet (Markers)": cluster
+    }).addTo(map);
+  })
+  .catch(error => console.error('Error loading GeoJSON:', error));
+
+</script>
+</body>
+</html>
