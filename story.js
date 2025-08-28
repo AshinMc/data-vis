@@ -4,6 +4,10 @@ let chapters = [];       // story chapters
 let currentIndex = 0;    // which chapter now
 let circleLayer;         // layer for markers
 let correlationValue = 0;// Pearson correlation
+// Autoplay / tour state
+let autoplay = false;
+let autoplayTimer = null;
+let autoplayDelay = 3500; // ms per chapter
 
 // Typewriter state
 let typing = false;
@@ -81,33 +85,38 @@ function makeChapters() {
     correlationValue = calcCorrelation();
 
     chapters = [
-        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Welcome! A tiny journey. Press Next.', a: () => { drawCircles(); fitAll(0.05); } },
-        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'All countries: size = internet %, color = happiness.', a: () => { drawCircles(); fitAll(0.05); } },
-        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Correlation ≈ ' + correlationValue.toFixed(2) + ' (soft positive).', a: () => drawCircles() },
+        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Welcome! A tiny journey. Press Next.', a: () => { drawCircles(); fitAll(0.05); }, fly:{center:[20,0], zoom:2} },
+        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'All countries: size = internet %, color = happiness.', a: () => { drawCircles(); fitAll(0.05); }, fly:{fitAll:true} },
+        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Correlation ≈ ' + correlationValue.toFixed(2) + ' (soft positive).', a: () => drawCircles(), fly:{center:[25,10], zoom:2.5} },
         // why any link exists
-        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Why a link? Internet often travels with money, schools, health systems & stable power. These also lift life quality.', a: () => {} },
-        { n: 'Mr. Stickman', i: 'assets/hurray.png', t: 'High access group brighter.', a: () => { drawCircles(hi); focusOn(hi); } },
+        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Why a link? Internet often travels with money, schools, health systems & stable power. These also lift life quality.', a: () => {}, fly:{center:[35,15], zoom:2.3} },
+        { n: 'Mr. Stickman', i: 'assets/hurray.png', t: 'High access group brighter.', a: () => { drawCircles(hi); focusOn(hi); }, fly:{focus:hi, zoom:3} },
         // high access explanation
-        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Rich innovation hubs: strong GDP + education + services. Hard to separate which part drives happiness most.', a: () => {} },
-        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Lower access sits cooler.', a: () => { drawCircles(lo); focusOn(lo); } },
+        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Rich innovation hubs: strong GDP + education + services. Hard to separate which part drives happiness most.', a: () => {}, fly:{focus:hi, zoom:3.2} },
+        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Lower access sits cooler.', a: () => { drawCircles(lo); focusOn(lo); }, fly:{focus:lo, zoom:3} },
         // low access explanation
-        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Low access causes: cost, rural distance, weak infrastructure, conflict, unreliable electricity.', a: () => {} },
-        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Latin American mix: moderate access, decent happiness.', a: () => { drawCircles(la); focusOn(la); } },
+        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Low access causes: cost, rural distance, weak infrastructure, conflict, unreliable electricity.', a: () => {}, fly:{focus:lo, zoom:3.2} },
+        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Latin American mix: moderate access, decent happiness.', a: () => { drawCircles(la); focusOn(la); }, fly:{focus:la, zoom:3} },
         // Latin America nuance
-        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Social bonds & community life can offset middling infrastructure; inequality still a drag.', a: () => {} },
-        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Outliers = spice: too few bland, too many chaos.', a: () => {} },
+        { n: 'Mr. Stickman', i: 'assets/standing.png', t: 'Social bonds & community life can offset middling infrastructure; inequality still a drag.', a: () => {}, fly:{focus:la, zoom:3.2} },
+        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Outliers = spice: too few bland, too many chaos.', a: () => {}, fly:{center:[10,40], zoom:2.2} },
         // outlier causes
-        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Outlier reasons: new policy pushes, cultural resilience, diaspora money, or just data noise.', a: () => {} },
-        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Some mid internet yet ok happiness (other strengths maybe).', a: () => { drawCircles(ex); focusOn(ex); } },
+        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Outlier reasons: new policy pushes, cultural resilience, diaspora money, or just data noise.', a: () => {}, fly:{center:[5,60], zoom:2.4} },
+        { n: 'Mr. Stickman', i: 'assets/hello.png', t: 'Some mid internet yet ok happiness (other strengths maybe).', a: () => { drawCircles(ex); focusOn(ex); }, fly:{focus:ex, zoom:3} },
         // limitations / caution
-        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Limits: self-report survey, different samples, year timing, correlation not causation.', a: () => {} },
-        { n: 'Mr. Stickman', i: 'assets/hurray.png', t: 'Access helps but not everything.', a: () => { drawCircles(); fitAll(0.05); } }
+        { n: 'Mr. Stickman', i: 'assets/confused.png', t: 'Limits: self-report survey, different samples, year timing, correlation not causation.', a: () => {}, fly:{center:[15,-20], zoom:2.3} },
+        { n: 'Mr. Stickman', i: 'assets/hurray.png', t: 'Access helps but not everything.', a: () => { drawCircles(); fitAll(0.05); }, fly:{fitAll:true} }
     ];
 }
 
 function setupButtons() {
     prevBtn.onclick = () => { goTo(currentIndex - 1); shakeChar(); };
     nextBtn.onclick = () => { goTo(currentIndex + 1); shakeChar(); };
+    // play / pause autoplay
+    const playBtn = document.getElementById('playBtn');
+    if (playBtn) {
+        playBtn.onclick = () => { toggleAutoplay(); };
+    }
     window.addEventListener('keydown', e => {
         if (e.key === 'ArrowRight' || e.key === ' ') { fastForwardOrNext(); shakeChar(); }
         else if (e.key === 'ArrowLeft') { goTo(currentIndex - 1); shakeChar(); }
@@ -129,6 +138,7 @@ function goTo(i) {
     prevBtn.disabled = currentIndex === 0;
     nextBtn.disabled = currentIndex === chapters.length - 1;
     c.a();
+    runFly(c);
 }
 
 function startTypewriter(str) {
@@ -241,6 +251,68 @@ function focusOn(list) {
     }
     if (count) map.fitBounds(b.pad(0.4));
 }
+
+// --- Fly / tour helper ---
+function runFly(chapter){
+    if(!chapter || !chapter.fly) return;
+    const f = chapter.fly;
+    if(f.fitAll){
+        fitAll(0.05);
+        return;
+    }
+    if(f.focus && Array.isArray(f.focus) && f.focus.length){
+        // compute bounds and fly
+        let set={}; f.focus.forEach(n=>set[n]=1);
+        let b=L.latLngBounds(); let count=0;
+        for(let i=0;i<dataList.length;i++){ let d=dataList[i]; if(set[d.country]){ b.extend([d.lat,d.lon]); count++; } }
+        if(count){
+            let z = f.zoom || 3;
+            // approximate center
+            const center = b.getCenter();
+            map.flyTo(center, z, { duration: 1.4 });
+        }
+        return;
+    }
+    if(f.center){
+        map.flyTo(f.center, f.zoom || 2.5, { duration: 1.4 });
+    }
+}
+
+// --- Autoplay (time-based animation) ---
+function toggleAutoplay(){
+    autoplay = !autoplay;
+    const btn = document.getElementById('playBtn');
+    if(btn) btn.textContent = autoplay ? 'Pause' : 'Play';
+    if(autoplay){
+        queueNext();
+    } else {
+        clearTimeout(autoplayTimer); autoplayTimer=null;
+    }
+}
+function queueNext(){
+    clearTimeout(autoplayTimer);
+    if(!autoplay) return;
+    autoplayTimer = setTimeout(()=>{
+        if(currentIndex < chapters.length -1){
+            goTo(currentIndex+1);
+            queueNext();
+        } else {
+            autoplay = false;
+            const btn = document.getElementById('playBtn');
+            if(btn) btn.textContent = 'Play';
+        }
+    }, autoplayDelay);
+}
+
+// --- Simple plugin-like registry (demonstration) ---
+const StoryMap = {
+    chapters: () => chapters.slice(),
+    current: () => ({ index: currentIndex, chapter: chapters[currentIndex] }),
+    go: i => goTo(i),
+    next: () => goTo(currentIndex+1),
+    prev: () => goTo(currentIndex-1)
+};
+window.StoryMap = StoryMap; // exposed for console experimentation
 
 // ---- Simple music handling (kept minimal) ----
 function tryMusicLater() {
