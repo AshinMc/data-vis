@@ -322,7 +322,7 @@ function showNavButtons(){
     if(nextBtn.style.display==='none') nextBtn.style.display='inline-block';
 }
 
-// ---- Simple music handling (kept minimal) ----
+// ---- Simple music handling ----
 function tryMusicLater() {
     setTimeout(() => { if (!musicStarted && !musicHintShown) showMusicHint(); }, 3000);
 }

@@ -1,13 +1,50 @@
-// Initialize the Leaflet map centered on the world with zoom level 2
+/**
+ * @fileoverview Interactive world map showing happiness scores and internet usage data
+ * Uses Leaflet.js to display country polygons colored by happiness levels and
+ * circular markers sized by internet usage percentages
+ * @author Your Name
+ * @version 1.0.0
+ */
+
+/**
+ * Main Leaflet map instance centered on the world
+ * @type {L.Map}
+ */
 var map = L.map('map').setView([20, 0], 2);
 
-// Global data storage objects
-var internetData = {}; // Stores internet usage percentages by country
-var happinessData = {}; // Stores happiness scores by country
-var countriesLayer; // Will hold the GeoJSON layer for country polygons
-var markerCluster = L.markerClusterGroup(); // Groups nearby markers for better performance
+/**
+ * Storage for internet usage percentages by country name
+ * @type {Object.<string, number>}
+ */
+var internetData = {};
 
-// Returns color based on happiness score (green for high, red for low)
+/**
+ * Storage for happiness scores by country name
+ * @type {Object.<string, number>}
+ */
+var happinessData = {};
+
+/**
+ * GeoJSON layer containing country polygon geometries
+ * @type {L.GeoJSON|null}
+ */
+var countriesLayer;
+
+/**
+ * Marker cluster group for better performance with many markers
+ * @type {L.MarkerClusterGroup}
+ */
+var markerCluster = L.markerClusterGroup();
+
+/**
+ * Returns appropriate color based on happiness score using a gradient from red to green
+ * @param {number|null|undefined} score - Happiness score (typically 0-10 scale)
+ * @returns {string} Hex color code for the happiness level
+ * @example
+ * getHappinessColor(7.5); // returns '#27ae60' (dark green)
+ * getHappinessColor(4.0); // returns '#c0392b' (dark red)
+ * getHappinessColor(null); // returns '#2c3e50' (gray for missing data)
+ */
 function getHappinessColor(score) 
 {
     if (!score) return '#2c3e50'; // Dark gray for missing data
@@ -19,7 +56,15 @@ function getHappinessColor(score)
     return '#c0392b'; // Dark red for very unhappy countries
 }
 
-// Returns marker radius based on internet usage percentage
+/**
+ * Returns marker radius based on internet usage percentage
+ * @param {number|null|undefined} pct - Internet usage percentage (0-100)
+ * @returns {number} Marker radius in pixels (4-12px range)
+ * @example
+ * getMarkerSize(95); // returns 12 (largest marker)
+ * getMarkerSize(25); // returns 4 (smallest marker)
+ * getMarkerSize(null); // returns 4 (default for missing data)
+ */
 function getMarkerSize(pct) 
 {
     if (!pct) return 4; // Small marker for missing data
@@ -30,7 +75,15 @@ function getMarkerSize(pct)
     return 4; // Smallest markers for lowest usage
 }
 
-// Returns marker color based on internet usage percentage (purple to orange spectrum)
+/**
+ * Returns marker color based on internet usage percentage using purple to orange spectrum
+ * @param {number|null|undefined} pct - Internet usage percentage (0-100)
+ * @returns {string} Hex color code for the usage level
+ * @example
+ * getMarkerColor(95); // returns '#8e44ad' (purple for highest usage)
+ * getMarkerColor(25); // returns '#e67e22' (orange for low usage)
+ * getMarkerColor(null); // returns '#95a5a6' (gray for missing data)
+ */
 function getMarkerColor(pct) 
 {
     if (!pct) return '#95a5a6'; // Gray for missing data
@@ -41,9 +94,25 @@ function getMarkerColor(pct)
     return '#e67e22'; // Orange for very low usage
 }
 
-var geojsonData = null; // Will store the world countries GeoJSON data
+/**
+ * Stores the world countries GeoJSON data once loaded
+ * @type {Object|null}
+ */
+var geojsonData = null;
 
-// Processes internet usage CSV data and creates circular markers on the map
+/**
+ * Processes internet usage CSV data and creates circular markers on the map
+ * Stores internet data globally and creates markers with size/color based on usage percentage
+ * @param {Object[]} data - Parsed CSV data array with country internet usage information
+ * @param {string} data[].Country - Country name
+ * @param {string|number} data[].PctOfPopulationUsingInternet - Internet usage percentage
+ * @param {string|number} [data[].Latitude] - Country latitude coordinate
+ * @param {string|number} [data[].Longitude] - Country longitude coordinate
+ * @example
+ * processInternetData([
+ *   {Country: "USA", PctOfPopulationUsingInternet: "89.4", Latitude: "39.8", Longitude: "-98.5"}
+ * ]);
+ */
 function processInternetData(data) {
     data.forEach(function(row) {
         // Check if row has required country and internet data
@@ -83,7 +152,17 @@ function processInternetData(data) {
     }
 }
 
-// Processes happiness CSV data and stores it for country coloring
+/**
+ * Processes happiness CSV data and stores it for country polygon coloring
+ * Extracts happiness scores and stores them globally for use in country styling
+ * @param {Object[]} data - Parsed CSV data array with country happiness information
+ * @param {string} data[].Country - Country name
+ * @param {string|number} data[]."Ladder score" - Happiness score (typically 0-10 scale)
+ * @example
+ * processHappinessData([
+ *   {Country: "Denmark", "Ladder score": "7.6"}
+ * ]);
+ */
 function processHappinessData(data) {
     data.forEach(function(row) {
         // Extract happiness score for each country
@@ -100,7 +179,22 @@ function processHappinessData(data) {
     }
 }
 
-// Creates the main map visualization with country polygons colored by happiness
+/**
+ * Creates the main map visualization with country polygons colored by happiness scores
+ * Adds country polygons, click interactions, legends, and layer controls to the map
+ * @param {Object} geojsonData - GeoJSON FeatureCollection containing world country geometries
+ * @param {Object[]} geojsonData.features - Array of country feature objects
+ * @param {Object} geojsonData.features[].properties - Country properties
+ * @param {string} geojsonData.features[].properties.name - Country name
+ * @example
+ * showMap({
+ *   type: "FeatureCollection",
+ *   features: [{
+ *     properties: { name: "United States" },
+ *     geometry: { ... }
+ *   }]
+ * });
+ */
 function showMap(geojsonData) {
   // Create country polygons layer with happiness-based coloring
   countriesLayer = L.geoJSON(geojsonData, {
@@ -140,9 +234,18 @@ function showMap(geojsonData) {
   }).addTo(map);
 }
 
-// Creates legend explaining happiness score color coding
+/**
+ * Creates a legend control explaining happiness score color coding
+ * Displays color scale from red (low happiness) to green (high happiness)
+ * @returns {L.Control} Leaflet control object for the happiness legend
+ */
 function createHappinessLegend() {
     var legend = L.control({position: 'bottomright'});
+    
+    /**
+     * Creates the DOM element for the happiness legend
+     * @returns {HTMLDivElement} DOM element containing the legend HTML
+     */
     legend.onAdd = function() {
         var div = L.DomUtil.create('div', 'legend happiness-legend');
         // Build HTML showing color scale for happiness scores
@@ -158,9 +261,18 @@ function createHappinessLegend() {
     return legend;
 }
 
-// Creates legend explaining internet usage marker size and color coding
+/**
+ * Creates a legend control explaining internet usage marker size and color coding
+ * Shows both size and color scales for internet usage percentages
+ * @returns {L.Control} Leaflet control object for the internet usage legend
+ */
 function createInternetLegend() {
     var legend = L.control({position: 'bottomleft'});
+    
+    /**
+     * Creates the DOM element for the internet usage legend
+     * @returns {HTMLDivElement} DOM element containing the legend HTML
+     */
     legend.onAdd = function() {
         var div = L.DomUtil.create('div', 'legend internet-legend');
         // Calculate marker sizes for different usage levels
@@ -188,7 +300,11 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-// Load world countries GeoJSON data from external source
+/**
+ * Loads world countries GeoJSON data from external GitHub repository
+ * Sets up the geojsonData variable and triggers map creation if other data is ready
+ * @async
+ */
 fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
     .then(response => response.json())
     .then(data => {
@@ -200,7 +316,11 @@ fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/wor
     })
     .catch(error => console.error('Error loading GeoJSON:', error));
 
-// Load and parse internet usage CSV data
+/**
+ * Loads and processes internet usage CSV data
+ * Fetches CSV file, parses it with Papa Parse, and processes the data
+ * @async
+ */
 fetch('internet-users-by-country-2024.csv')
     .then(response => response.text())
     .then(csvText => {
@@ -210,7 +330,11 @@ fetch('internet-users-by-country-2024.csv')
     })
     .catch(error => console.error('Error loading internet data:', error));
 
-// Load and parse happiness report CSV data
+/**
+ * Loads and processes happiness report CSV data
+ * Fetches World Happiness Report CSV file, parses it, and processes the data
+ * @async
+ */
 fetch('WHR24_Data_Figure_2.1.csv')
     .then(response => response.text())
     .then(csvText => {
