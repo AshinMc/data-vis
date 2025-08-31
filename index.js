@@ -1,12 +1,4 @@
 /**
- * @fileoverview Interactive world map showing happiness scores and internet usage data
- * Uses Leaflet.js to display country polygons colored by happiness levels and
- * circular markers sized by internet usage percentages
- * @author Your Name
- * @version 1.0.0
- */
-
-/**
  * Main Leaflet map instance centered on the world
  * @type {L.Map}
  */

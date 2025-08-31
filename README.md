@@ -5,15 +5,18 @@ Interactive web-based visualization exploring the relationship between internet 
 
 ## Setup Instructions
 
-### Required Browser Versions
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+### Recommended Browser Versions
+- Chrome (version 90 or later; tested up to version 139)
+- Firefox (version 88 or later)
+- Safari (version 14 or later)
+- Microsoft Edge (version 90 or later)
+**Note:**  
+The project will open in your system's default browser when using a local server.  
+If you prefer to test it in a different browser (e.g., Edge instead of Chrome), simply copy the local server URL (e.g., `http://127.0.0.1:5500/index.html`) and paste it into the browser of your choice.
 
 ### How to Run Locally
 Due to CORS restrictions when loading CSV files, a local server is required:
-
+**Note:** The project requires an **internet connection** because it loads libraries (Leaflet, D3.js, Papa Parse, etc.) and some GeoJSON data from external CDNs. 
 **VS Code: Live Server extension**
 1. Install Live Server extension
 2. Right-click on index.html and select "Open with Live Server"
