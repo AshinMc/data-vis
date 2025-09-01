@@ -32,10 +32,6 @@ var markerCluster = L.markerClusterGroup();
  * Returns appropriate color based on happiness score using a gradient from red to green
  * @param {number|null|undefined} score - Happiness score (typically 0-10 scale)
  * @returns {string} Hex color code for the happiness level
- * @example
- * getHappinessColor(7.5); // returns '#27ae60' (dark green)
- * getHappinessColor(4.0); // returns '#c0392b' (dark red)
- * getHappinessColor(null); // returns '#2c3e50' (gray for missing data)
  */
 function getHappinessColor(score) 
 {
@@ -52,10 +48,6 @@ function getHappinessColor(score)
  * Returns marker radius based on internet usage percentage
  * @param {number|null|undefined} pct - Internet usage percentage (0-100)
  * @returns {number} Marker radius in pixels (4-12px range)
- * @example
- * getMarkerSize(95); // returns 12 (largest marker)
- * getMarkerSize(25); // returns 4 (smallest marker)
- * getMarkerSize(null); // returns 4 (default for missing data)
  */
 function getMarkerSize(pct) 
 {
@@ -71,10 +63,6 @@ function getMarkerSize(pct)
  * Returns marker color based on internet usage percentage using purple to orange spectrum
  * @param {number|null|undefined} pct - Internet usage percentage (0-100)
  * @returns {string} Hex color code for the usage level
- * @example
- * getMarkerColor(95); // returns '#8e44ad' (purple for highest usage)
- * getMarkerColor(25); // returns '#e67e22' (orange for low usage)
- * getMarkerColor(null); // returns '#95a5a6' (gray for missing data)
  */
 function getMarkerColor(pct) 
 {
@@ -100,10 +88,6 @@ var geojsonData = null;
  * @param {string|number} data[].PctOfPopulationUsingInternet - Internet usage percentage
  * @param {string|number} [data[].Latitude] - Country latitude coordinate
  * @param {string|number} [data[].Longitude] - Country longitude coordinate
- * @example
- * processInternetData([
- *   {Country: "USA", PctOfPopulationUsingInternet: "89.4", Latitude: "39.8", Longitude: "-98.5"}
- * ]);
  */
 function processInternetData(data) {
     data.forEach(function(row) {
@@ -150,10 +134,6 @@ function processInternetData(data) {
  * @param {Object[]} data - Parsed CSV data array with country happiness information
  * @param {string} data[].Country - Country name
  * @param {string|number} data[]."Ladder score" - Happiness score (typically 0-10 scale)
- * @example
- * processHappinessData([
- *   {Country: "Denmark", "Ladder score": "7.6"}
- * ]);
  */
 function processHappinessData(data) {
     data.forEach(function(row) {
@@ -178,14 +158,6 @@ function processHappinessData(data) {
  * @param {Object[]} geojsonData.features - Array of country feature objects
  * @param {Object} geojsonData.features[].properties - Country properties
  * @param {string} geojsonData.features[].properties.name - Country name
- * @example
- * showMap({
- *   type: "FeatureCollection",
- *   features: [{
- *     properties: { name: "United States" },
- *     geometry: { ... }
- *   }]
- * });
  */
 function showMap(geojsonData) {
   // Create country polygons layer with happiness-based coloring
@@ -286,7 +258,9 @@ function createInternetLegend() {
     return legend;
 }
 
-// Add OpenStreetMap base layer as the background map
+/**
+ * initializes and loads map
+ */
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
